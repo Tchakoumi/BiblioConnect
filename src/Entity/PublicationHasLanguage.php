@@ -41,9 +41,16 @@ class PublicationHasLanguage
     #[ORM\OneToMany(targetEntity: Rating::class, mappedBy: 'publicationHasLanguage', orphanRemoval: true)]
     private Collection $ratings;
 
+    /**
+     * @var Collection<int, ReservationPublication>
+     */
+    #[ORM\OneToMany(targetEntity: ReservationPublication::class, mappedBy: 'publication_has_language', orphanRemoval: true)]
+    private Collection $reservationPublications;
+
     public function __construct()
     {
         $this->ratings = new ArrayCollection();
+        $this->reservationPublications = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -147,6 +154,36 @@ class PublicationHasLanguage
             // set the owning side to null (unless already changed)
             if ($rating->getPublicationHasLanguage() === $this) {
                 $rating->setPublicationHasLanguage(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ReservationPublication>
+     */
+    public function getReservationPublications(): Collection
+    {
+        return $this->reservationPublications;
+    }
+
+    public function addReservationPublication(ReservationPublication $reservationPublication): static
+    {
+        if (!$this->reservationPublications->contains($reservationPublication)) {
+            $this->reservationPublications->add($reservationPublication);
+            $reservationPublication->setPublicationHasLanguage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReservationPublication(ReservationPublication $reservationPublication): static
+    {
+        if ($this->reservationPublications->removeElement($reservationPublication)) {
+            // set the owning side to null (unless already changed)
+            if ($reservationPublication->getPublicationHasLanguage() === $this) {
+                $reservationPublication->setPublicationHasLanguage(null);
             }
         }
 
