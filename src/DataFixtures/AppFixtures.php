@@ -8,6 +8,7 @@ use Doctrine\Persistence\ObjectManager;
 use App\Entity\Category;
 use App\Entity\Author;
 use App\Entity\Theme;
+use App\Entity\Language;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -100,6 +101,20 @@ class AppFixtures extends Fixture
             $theme = new Theme();
             $theme->setTitle($themeTitle);
             $manager->persist($theme);
+        }
+
+        $languages = [
+            'English',
+            'French',
+            'Spanish',
+            'German',
+            'Italian',
+        ];
+
+        foreach ($languages as $languageName) {
+            $language = new Language();
+            $language->setName($languageName);
+            $manager->persist($language);
         }
 
         $manager->flush();
