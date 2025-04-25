@@ -6,6 +6,7 @@ use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use App\Entity\Category;
+use App\Entity\Author;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -70,6 +71,20 @@ class AppFixtures extends Fixture
             $category = new Category();
             $category->setName($categoryName);
             $manager->persist($category);
+        }
+
+        $authors = [
+            'J.K. Rowling',
+            'Stephen King',
+            'Agatha Christie',
+            'Dan Brown',
+            'J.R.R. Tolkien',
+        ];
+
+        foreach ($authors as $authorName) {
+            $author = new Author();
+            $author->setFullName($authorName);
+            $manager->persist($author);
         }
 
         $manager->flush();
