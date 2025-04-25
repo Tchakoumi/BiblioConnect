@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PublicationHasLanguageRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PublicationHasLanguageRepository::class)]
@@ -32,6 +34,17 @@ class PublicationHasLanguage
     #[ORM\ManyToOne(inversedBy: 'publicationHasLanguages')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Language $language = null;
+
+    /**
+     * @var Collection<int, Rating>
+     */
+    #[ORM\OneToMany(targetEntity: Rating::class, mappedBy: 'publicationHasLanguage', orphanRemoval: true)]
+    private Collection $ratings;
+
+    public function __construct()
+    {
+        $this->ratings = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -106,6 +119,36 @@ class PublicationHasLanguage
     public function setLanguage(?Language $language): static
     {
         $this->language = $language;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Rating>
+     */
+    public function getRatings(): Collection
+    {
+        return $this->ratings;
+    }
+
+    public function addRating(Rating $rating): static
+    {
+        if (!$this->ratings->contains($rating)) {
+            $this->ratings->add($rating);
+            $rating->setPublicationHasLanguage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRating(Rating $rating): static
+    {
+        if ($this->ratings->removeElement($rating)) {
+            // set the owning side to null (unless already changed)
+            if ($rating->getPublicationHasLanguage() === $this) {
+                $rating->setPublicationHasLanguage(null);
+            }
+        }
 
         return $this;
     }
