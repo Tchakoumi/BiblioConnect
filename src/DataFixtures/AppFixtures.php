@@ -7,6 +7,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use App\Entity\Category;
 use App\Entity\Author;
+use App\Entity\Theme;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -85,6 +86,20 @@ class AppFixtures extends Fixture
             $author = new Author();
             $author->setFullName($authorName);
             $manager->persist($author);
+        }
+
+        $themes = [
+            'Magic',
+            'Supernatural',
+            'Mystery',
+            'Romance',
+            'Horror',
+        ];
+
+        foreach ($themes as $themeTitle) {
+            $theme = new Theme();
+            $theme->setTitle($themeTitle);
+            $manager->persist($theme);
         }
 
         $manager->flush();
