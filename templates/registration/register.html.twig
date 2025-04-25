@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register - BiblioConnect{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg border-0 rounded-lg mt-5">
+            <div class="card-header text-center bg-primary text-white">
+                <h3 class="font-weight-light my-2"><i class="bi bi-book me-2"></i>BiblioConnect</h3>
+                <p class="mb-0">Create Your Account</p>
+            </div>
+            <div class="card-body">
+                {{ form_start(registrationForm) }}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3 mb-md-0">
+                                {{ form_widget(registrationForm.firstName) }}
+                                {{ form_label(registrationForm.firstName) }}
+                                <div class="invalid-feedback">
+                                    {{ form_errors(registrationForm.firstName) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form_widget(registrationForm.lastName) }}
+                                {{ form_label(registrationForm.lastName) }}
+                                <div class="invalid-feedback">
+                                    {{ form_errors(registrationForm.lastName) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        {{ form_widget(registrationForm.email) }}
+                        {{ form_label(registrationForm.email) }}
+                        <div class="invalid-feedback">
+                            {{ form_errors(registrationForm.email) }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3 mb-md-0">
+                                {{ form_widget(registrationForm.plainPassword.first) }}
+                                {{ form_label(registrationForm.plainPassword.first) }}
+                                <div class="invalid-feedback">
+                                    {{ form_errors(registrationForm.plainPassword.first) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3 mb-md-0">
+                                {{ form_widget(registrationForm.plainPassword.second) }}
+                                {{ form_label(registrationForm.plainPassword.second) }}
+                                <div class="invalid-feedback">
+                                    {{ form_errors(registrationForm.plainPassword.second) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+                        {{ form_label(registrationForm.agreeTerms, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                        <div class="invalid-feedback">
+                            {{ form_errors(registrationForm.agreeTerms) }}
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button class="btn btn-primary btn-lg" type="submit">
+                            Create Account <i class="bi bi-person-plus ms-1"></i>
+                        </button>
+                    </div>
+                {{ form_end(registrationForm) }}
+            </div>
+            <div class="card-footer text-center py-3">
+                <div class="small">Already have an account? <a href="{{ path('app_login') }}">Sign in</a></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
