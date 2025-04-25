@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use App\Entity\Category;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -53,6 +54,22 @@ class AppFixtures extends Fixture
             $user->setPassword($hashedPassword);
 
             $manager->persist($user);
+        }
+
+        $categories = [
+            'Science Fiction',
+            'Fantasy',
+            'Mystery',
+            'Romance',
+            'Horror',
+            'Thriller',
+            'Biography',
+        ];
+
+        foreach ($categories as $categoryName) {
+            $category = new Category();
+            $category->setName($categoryName);
+            $manager->persist($category);
         }
 
         $manager->flush();
