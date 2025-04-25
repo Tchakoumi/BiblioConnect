@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Debug - BiblioConnect{% endblock %}
+
+{% block body %}
+    <div class="card">
+        <div class="card-header bg-warning text-dark">
+            <h2>User Authentication Debug</h2>
+            <p class="mb-0">This is a debug page showing all users and authentication info - only available in development environment</p>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <h4>Form login debugging tips:</h4>
+                <ol>
+                    <li>Make sure the username parameter is <code>_username</code> and password parameter is <code>_password</code></li>
+                    <li>Make sure CSRF token is properly configured with the name <code>_csrf_token</code></li>
+                    <li>Check the password hashing by verifying the "known_password_works" column below</li>
+                    <li>Review the log file for authentication errors</li>
+                </ol>
+            </div>
+
+            <h3>User Accounts</h3>
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Testing123! Password Works</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in debug_info %}
+                        <tr>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% for role in user.roles %}
+                                    <span class="badge bg-secondary">{{ role }}</span>
+                                {% endfor %}
+                            </td>
+                            <td class="{{ user.known_password_works == 'Yes' ? 'table-success' : 'table-danger' }}">
+                                {{ user.known_password_works }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <a href="{{ path('app_login') }}" class="btn btn-primary">Return to Login</a>
+        </div>
+    </div>
+{% endblock %}

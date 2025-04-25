@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home - BiblioConnect{% endblock %}
+
+{% block body %}
+<div class="jumbotron bg-light p-5 rounded-3 mb-4">
+    <div class="container">
+        <h1 class="display-4">Welcome to BiblioConnect</h1>
+        <p class="lead">The modern library management system for organizing and tracking your publications.</p>
+        <hr class="my-4">
+        <p>You are logged in as: <strong>{{ app.user.firstName }} {{ app.user.lastName }}</strong> ({{ app.user.email }})</p>
+
+        <div class="mt-4">
+            <a href="{{ path('app_user_index') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-people me-2"></i> Manage Users
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-book me-2"></i>Publications</h5>
+                <p class="card-text">Manage all library publications, books, and materials.</p>
+                <a href="#" class="btn btn-outline-primary">Manage Publications</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bookmark me-2"></i>Reservations</h5>
+                <p class="card-text">View and manage all current publication reservations.</p>
+                <a href="#" class="btn btn-outline-primary">View Reservations</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-gear me-2"></i>Settings</h5>
+                <p class="card-text">Configure system settings and preferences.</p>
+                <a href="#" class="btn btn-outline-primary">System Settings</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -12,6 +12,10 @@ body {
   font-family: var(--font-main);
   color: var(--dark-color);
   background-color: #f8f9fa;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: start;
 }
 
 .navbar {

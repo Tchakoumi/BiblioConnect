@@ -1,0 +1,8 @@
+<form action="{{ path('app_logout') }}" method="post" class="{{ class|default('d-none') }}" id="{{ id|default('logout-form') }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+    {% if show_button|default(false) %}
+        <button type="submit" class="btn {{ button_class|default('btn-danger') }}">
+            <i class="bi bi-box-arrow-right me-2"></i>{{ button_text|default('Logout') }}
+        </button>
+    {% endif %}
+</form>
