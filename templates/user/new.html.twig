@@ -1,11 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New User{% endblock %}
+{% block title %}New User - BiblioConnect{% endblock %}
 
 {% block body %}
-    <h1>Create new User</h1>
-
-    {{ include('user/_form.html.twig') }}
-
-    <a href="{{ path('app_user_index') }}">back to list</a>
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">Create New User</h1>
+            <a href="{{ path('app_user_index') }}" class="btn btn-outline-secondary">Back to list</a>
+        </div>
+        <div class="card-body">
+            {{ include('user/_form.html.twig') }}
+        </div>
+    </div>
 {% endblock %}
