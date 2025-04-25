@@ -49,7 +49,7 @@ security:
         - { path: ^/author, roles: ROLE_LIBRARIAN }
         - { path: ^/theme, roles: ROLE_LIBRARIAN }
         - { path: ^/language, roles: ROLE_LIBRARIAN }
-        - { path: ^/user, roles: ROLE_LIBRARIAN }
+        - { path: ^/user, roles: ROLE_ADMIN }
 
         # All other routes require at least user role
         - { path: ^/, roles: ROLE_USER }

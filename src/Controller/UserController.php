@@ -14,7 +14,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/user')]
-#[IsGranted('ROLE_LIBRARIAN')]
+#[IsGranted('ROLE_ADMIN')]
 final class UserController extends AbstractController
 {
     #[Route(name: 'app_user_index', methods: ['GET'])]
@@ -26,7 +26,6 @@ final class UserController extends AbstractController
     }
 
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
-    #[IsGranted('ROLE_ADMIN')]
     public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new User();
@@ -64,15 +63,19 @@ final class UserController extends AbstractController
     #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
-        // Only admins can edit other users' roles
-        if (!$this->isGranted('ROLE_ADMIN') && $user->getRoles() !== $this->getUser()->getRoles()) {
-            $this->addFlash('error', 'You do not have permission to edit this user\'s roles');
-            return $this->redirectToRoute('app_user_index');
+        // Prevent editing of own roles
+        if ($user === $this->getUser() && $request->isMethod('POST')) {
+            $originalRoles = $this->getUser()->getRoles();
+            // Ensure user can't change their own roles
+            $form = $this->createForm(UserType::class, $user);
+            $form->handleRequest($request);
+            $user->setRoles($originalRoles);
+        } else {
+            $form = $this->createForm(UserType::class, $user);
+            $form->handleRequest($request);
         }
 
         $originalPassword = $user->getPassword();
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             if ($originalPassword !== $user->getPassword()) {
@@ -98,7 +101,6 @@ final class UserController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
-    #[IsGranted('ROLE_ADMIN')]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         // Prevent self-deletion
