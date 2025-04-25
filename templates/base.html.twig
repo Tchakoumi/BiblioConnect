@@ -36,15 +36,42 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ path('app_homepage') }}"><i class="bi bi-house me-1"></i> Home</a>
                                 </li>
+
+                                <!-- Publications - visible to all users -->
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ path('app_user_index') }}"><i class="bi bi-people me-1"></i> Users</a>
+                                    <a class="nav-link" href="#"><i class="bi bi-book me-1"></i> Publications</a>
                                 </li>
-                                <!-- Add more navigation links as needed -->
+
+                                <!-- Reservations - visible to all users -->
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="bi bi-bookmark me-1"></i> Reservations</a>
+                                </li>
+
+                                {% if is_granted('ROLE_LIBRARIAN') %}
+                                <!-- Management dropdown - only for librarians and admins -->
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarManagement" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-gear me-1"></i> Management
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarManagement">
+                                        <li><a class="dropdown-item" href="{{ path('app_category_index') }}">Categories</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_author_index') }}">Authors</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_theme_index') }}">Themes</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_language_index') }}">Languages</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_user_index') }}">Users</a></li>
+                                    </ul>
+                                </li>
+                                {% endif %}
                             </ul>
                             <ul class="navbar-nav">
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bi bi-person-circle me-1"></i> {{ app.user.firstName }}
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <span class="badge bg-danger">Admin</span>
+                                        {% elseif is_granted('ROLE_LIBRARIAN') %}
+                                            <span class="badge bg-success">Librarian</span>
+                                        {% endif %}
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                         <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>

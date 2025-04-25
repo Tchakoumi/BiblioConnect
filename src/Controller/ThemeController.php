@@ -10,8 +10,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/theme')]
+#[IsGranted('ROLE_LIBRARIAN')]
 final class ThemeController extends AbstractController
 {
     #[Route(name: 'app_theme_index', methods: ['GET'])]
