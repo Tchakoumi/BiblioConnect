@@ -66,10 +66,12 @@
 			<div class="card shadow-sm">
 				<div class="card-header bg-light d-flex justify-content-between align-items-center">
 					<h5 class="mb-0">Language Editions</h5>
-					<a href="{{ path('app_publication_add_language', {'id': publication.id}) }}" class="btn btn-success">
-						<i class="fas fa-plus me-1"></i>
-						Add Language Edition
-					</a>
+					{% if is_granted('ROLE_LIBRARIAN') %}
+						<a href="{{ path('app_publication_add_language', {'id': publication.id}) }}" class="btn btn-success">
+							<i class="fas fa-plus me-1"></i>
+							Add Language Edition
+						</a>
+					{% endif %}
 				</div>
 				<div class="card-body">
 					{% if publication.publicationHasLanguages|length > 0 %}
@@ -80,7 +82,9 @@
 										<th>Language</th>
 										<th>Title</th>
 										<th>Quantity</th>
-										<th>Sales Price</th>
+										{% if is_granted('ROLE_LIBRARIAN') %}
+											<th>Sales Price</th>
+										{% endif %}
 										<th>Action</th>
 									</tr>
 								</thead>
@@ -92,7 +96,9 @@
 											</td>
 											<td>{{ edition.title }}</td>
 											<td>{{ edition.quantity }}</td>
-											<td>{{ edition.salesPrice }}</td>
+											{% if is_granted('ROLE_LIBRARIAN') %}
+												<td>{{ edition.salesPrice }}</td>
+											{% endif %}
 											<td>
 												<a href="#" class="btn btn-sm btn-outline-primary">
 													<i class="fas fa-eye me-1"></i>
@@ -106,12 +112,14 @@
 						</div>
 					{% else %}
 						<p class="text-muted mb-0">No language editions available for this publication.</p>
-						<div class="text-center mt-3">
-							<a href="{{ path('app_publication_add_language', {'id': publication.id}) }}" class="btn btn-primary">
-								<i class="fas fa-plus me-1"></i>
-								Add First Language Edition
-							</a>
-						</div>
+						{% if is_granted('ROLE_LIBRARIAN') %}
+							<div class="text-center mt-3">
+								<a href="{{ path('app_publication_add_language', {'id': publication.id}) }}" class="btn btn-primary">
+									<i class="fas fa-plus me-1"></i>
+									Add First Language Edition
+								</a>
+							</div>
+						{% endif %}
 					{% endif %}
 				</div>
 			</div>

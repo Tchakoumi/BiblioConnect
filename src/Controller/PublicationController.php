@@ -17,10 +17,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/publication')]
-#[IsGranted('ROLE_LIBRARIAN')]
 class PublicationController extends AbstractController
 {
     #[Route('/', name: 'app_publication_index', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function index(Request $request, PublicationRepository $publicationRepository,
                          ThemeRepository $themeRepository, CategoryRepository $categoryRepository): Response
     {
@@ -80,6 +80,7 @@ class PublicationController extends AbstractController
     }
 
     #[Route('/new', name: 'app_publication_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_LIBRARIAN')]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $publication = new Publication();
@@ -104,6 +105,7 @@ class PublicationController extends AbstractController
     }
 
     #[Route('/{id}/add-language', name: 'app_publication_add_language', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_LIBRARIAN')]
     public function addLanguage(Request $request, Publication $publication, EntityManagerInterface $entityManager): Response
     {
         $publicationHasLanguage = new PublicationHasLanguage();
@@ -136,6 +138,7 @@ class PublicationController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_publication_show', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function show(Publication $publication): Response
     {
         return $this->render('publication/show.html.twig', [
@@ -144,6 +147,7 @@ class PublicationController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_publication_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_LIBRARIAN')]
     public function edit(Request $request, Publication $publication, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(PublicationType::class, $publication);
@@ -163,6 +167,7 @@ class PublicationController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_publication_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_LIBRARIAN')]
     public function delete(Request $request, Publication $publication, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$publication->getId(), $request->getPayload()->getString('_token'))) {
