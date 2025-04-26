@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Language Edition{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1>Edit Language Edition</h1>
+                <p class="text-muted">Update language edition details for "{{ language_edition.title }}"</p>
+            </div>
+            <div class="col-md-4 text-md-end d-flex justify-content-md-end align-items-center gap-2">
+                <a href="{{ path('app_publication_edit', {'id': publication.id}) }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Publication
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        {{ form_start(form) }}
+                            {{ form_widget(form) }}
+                            <div class="mt-4 d-flex justify-content-between">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Save Changes
+                                </button>
+
+                                <form method="post" action="{{ path('app_publication_language_delete', {'id': publication.id, 'langId': language_edition.id}) }}" onsubmit="return confirm('Are you sure you want to delete this language edition? This action cannot be undone.');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete-language' ~ language_edition.id) }}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-trash-alt me-1"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Publication Info</h5>
+                    </div>
+                    <div class="card-body">
+                        <h5>{{ publication.theme ? publication.theme.title : 'No theme' }}</h5>
+                        <p class="text-muted">
+                            {% if publication.author %}
+                                {{ publication.author.fullname }}
+                            {% endif %}
+                        </p>
+
+                        <hr>
+
+                        <div class="d-grid mt-3">
+                            <a href="{{ path('app_publication_show', {'id': publication.id}) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i> View Publication Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

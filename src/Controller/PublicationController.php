@@ -201,4 +201,51 @@ class PublicationController extends AbstractController
 
         return $this->redirectToRoute('app_publication_index');
     }
+
+    #[Route('/{id}/language/{langId}/edit', name: 'app_publication_language_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_LIBRARIAN')]
+    public function editLanguage(Request $request, Publication $publication, int $langId, EntityManagerInterface $entityManager): Response
+    {
+        // Find the specific language edition
+        $publicationHasLanguage = $entityManager->getRepository(PublicationHasLanguage::class)->find($langId);
+
+        if (!$publicationHasLanguage || $publicationHasLanguage->getPublication()->getId() !== $publication->getId()) {
+            throw $this->createNotFoundException('Language edition not found for this publication');
+        }
+
+        $form = $this->createForm(PublicationHasLanguageType::class, $publicationHasLanguage);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Language edition updated successfully');
+            return $this->redirectToRoute('app_publication_edit', ['id' => $publication->getId()]);
+        }
+
+        return $this->render('publication/edit_language.html.twig', [
+            'publication' => $publication,
+            'language_edition' => $publicationHasLanguage,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/{id}/language/{langId}/delete', name: 'app_publication_language_delete', methods: ['POST', 'DELETE'])]
+    #[IsGranted('ROLE_LIBRARIAN')]
+    public function deleteLanguage(Request $request, Publication $publication, int $langId, EntityManagerInterface $entityManager): Response
+    {
+        $publicationHasLanguage = $entityManager->getRepository(PublicationHasLanguage::class)->find($langId);
+
+        if (!$publicationHasLanguage || $publicationHasLanguage->getPublication()->getId() !== $publication->getId()) {
+            throw $this->createNotFoundException('Language edition not found for this publication');
+        }
+
+        if ($this->isCsrfTokenValid('delete-language'.$langId, $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($publicationHasLanguage);
+            $entityManager->flush();
+            $this->addFlash('success', 'Language edition deleted successfully');
+        }
+
+        return $this->redirectToRoute('app_publication_edit', ['id' => $publication->getId()]);
+    }
 }
