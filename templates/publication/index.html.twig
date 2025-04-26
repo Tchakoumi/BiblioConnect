@@ -1,0 +1,165 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Publications
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid py-4">
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<h1>Publications</h1>
+			<div>
+				<a href="{{ path('app_publication_new') }}" class="btn btn-primary">
+					<i class="fas fa-plus me-1"></i>
+					New Publication
+				</a>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-3 mb-4">
+				<div class="card shadow-sm">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Filters</h5>
+					</div>
+					<div class="card-body">
+						<form method="get" action="{{ path('app_publication_index') }}">
+							<div class="mb-3">
+								<label for="search" class="form-label">Search</label>
+								<input type="text" class="form-control" id="search" name="search" value="{{ app.request.query.get('search') }}" placeholder="Search by theme or author...">
+							</div>
+
+							<div class="mb-3">
+								<label for="theme" class="form-label">Theme</label>
+								<select class="form-select" id="theme" name="theme">
+									<option value="">All Themes</option>
+									{# TODO: Add theme options dynamically #}
+								</select>
+							</div>
+
+							<div class="mb-3">
+								<label for="category" class="form-label">Category</label>
+								<select class="form-select" id="category" name="category">
+									<option value="">All Categories</option>
+									{# TODO: Add category options dynamically #}
+								</select>
+							</div>
+
+							<div class="d-grid gap-2">
+								<button type="submit" class="btn btn-primary">
+									<i class="fas fa-filter me-1"></i>
+									Apply Filters
+								</button>
+								<a href="{{ path('app_publication_index') }}" class="btn btn-outline-secondary">
+									<i class="fas fa-times me-1"></i>
+									Clear Filters
+								</a>
+							</div>
+						</form>
+					</div>
+				</div>
+
+				<div class="card shadow-sm mt-4">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Statistics</h5>
+					</div>
+					<div class="card-body">
+						<div class="row g-0">
+							<div class="col-6 border-end p-3">
+								<h6 class="text-muted">Total Books</h6>
+								<p class="h3 mb-0">
+									{% set withEditionsCount = 0 %}
+									{% for pub in publications %}
+										{% if pub.publicationHasLanguages|length > 0 %}
+											{% set withEditionsCount = withEditionsCount + 1 %}
+										{% endif %}
+									{% endfor %}
+									{{ withEditionsCount }}
+								</p>
+							</div>
+							<div class="col-6 p-3">
+								<h6 class="text-muted">Categories</h6>
+								<p class="h3 mb-0">
+									{% set categories = [] %}
+									{% for pub in publications %}
+										{% if pub.category and pub.category.id not in categories %}
+											{% set categories = categories|merge([pub.category.id]) %}
+										{% endif %}
+									{% endfor %}
+									{{ categories|length }}
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-9">
+				{% if publications|length > 0 %}
+					<div class="mb-3 bg-light p-3 rounded">
+						<p class="mb-0">Showing
+							<strong>{{ publications|length }}</strong>
+							publications
+						</p>
+					</div>
+
+					<div class="table-responsive">
+						<table class="table table-striped table-hover shadow-sm">
+							<thead class="table-light">
+								<tr>
+									<th>Theme</th>
+									<th>Author</th>
+									<th>Category</th>
+									<th>Languages</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for publication in publications %}
+									<tr>
+										<td>
+											<a href="{{ path('app_publication_show', {'id': publication.id}) }}">
+												{{ publication.theme ? publication.theme.title : 'No Theme' }}
+											</a>
+										</td>
+										<td>{{ publication.author ? publication.author.fullname : 'Unknown' }}</td>
+										<td>
+											{% if publication.category %}
+												<span class="badge bg-info">{{ publication.category.name }}</span>
+											{% else %}
+												<span class="badge bg-secondary">Uncategorized</span>
+											{% endif %}
+										</td>
+										<td>{{ publication.publicationHasLanguages|length }}</td>
+										<td>
+											<div class="btn-group btn-group-sm">
+												<a href="{{ path('app_publication_show', {'id': publication.id}) }}" class="btn btn-outline-primary">
+													<i class="fas fa-eye me-1"></i> View
+												</a>
+												<a href="{{ path('app_publication_edit', {'id': publication.id}) }}" class="btn btn-outline-secondary">
+													<i class="fas fa-edit me-1"></i> Edit
+												</a>
+												<a href="{{ path('app_publication_add_language', {'id': publication.id}) }}" class="btn btn-outline-success">
+													<i class="fas fa-language me-1"></i> Languages
+												</a>
+											</div>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% else %}
+					<div class="text-center p-5 bg-light rounded">
+						<i class="fas fa-books fa-4x text-secondary mb-3"></i>
+						<h3>No publications found</h3>
+						<p class="text-muted">Try adjusting your search or filter criteria</p>
+						<a href="{{ path('app_publication_new') }}" class="btn btn-primary mt-3">
+							<i class="fas fa-plus me-1"></i>
+							Add New Publication
+						</a>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock %}

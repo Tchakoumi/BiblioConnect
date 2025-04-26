@@ -1,0 +1,121 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Publication Details
+{% endblock %}
+
+{% block body %}
+	<div class="container py-4">
+		<div class="row mb-4">
+			<div class="col-md-8">
+				<h1>Publication Details</h1>
+				<p class="text-muted">
+					{% if publication.author %}
+						{{ publication.author.fullname }}
+					{% endif %}
+				</p>
+			</div>
+			<div class="col-md-4 text-md-end d-flex align-items-center justify-content-md-end gap-2">
+				<a href="{{ path('app_publication_index') }}" class="btn btn-outline-secondary">
+					<i class="fas fa-arrow-left me-1"></i>
+					Back to List
+				</a>
+				{% if is_granted('ROLE_LIBRARIAN') or is_granted('ROLE_ADMIN') %}
+					<a href="{{ path('app_publication_edit', {'id': publication.id}) }}" class="btn btn-primary">
+						<i class="fas fa-edit me-1"></i>
+						Edit
+					</a>
+				{% endif %}
+			</div>
+		</div>
+
+
+		<div>
+			<div class="card shadow-sm mb-4">
+				<div class="card-header bg-light">
+					<h5 class="mb-0">Publication Details</h5>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<table class="table table-bordered">
+							<tr>
+								<td>
+									<strong>Theme</strong>
+								</td>
+								<td>{{ publication.theme ? publication.theme.title  }}</td>
+							</tr>
+							<tr>
+								<td>
+									<strong>Author</strong>
+								</td>
+								<td>{{ publication.author ? publication.author.fullname}}</td>
+							</tr>
+							<tr>
+								<td>
+									<strong>Category</strong>
+								</td>
+								<td>
+									<span class="badge bg-info">{{ publication.category.name }}</span>
+								</td>
+							</tr>
+						</table>
+
+					</div>
+				</div>
+			</div>
+
+			<div class="card shadow-sm">
+				<div class="card-header bg-light d-flex justify-content-between align-items-center">
+					<h5 class="mb-0">Language Editions</h5>
+					<a href="{{ path('app_publication_add_language', {'id': publication.id}) }}" class="btn btn-success">
+						<i class="fas fa-plus me-1"></i>
+						Add Language Edition
+					</a>
+				</div>
+				<div class="card-body">
+					{% if publication.publicationHasLanguages|length > 0 %}
+						<div class="table-responsive">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>Language</th>
+										<th>Title</th>
+										<th>Quantity</th>
+										<th>Sales Price</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for edition in publication.publicationHasLanguages %}
+										<tr>
+											<td>
+												<span class="badge bg-info">{{ edition.language.name }}</span>
+											</td>
+											<td>{{ edition.title }}</td>
+											<td>{{ edition.quantity }}</td>
+											<td>{{ edition.salesPrice }}</td>
+											<td>
+												<a href="#" class="btn btn-sm btn-outline-primary">
+													<i class="fas fa-eye me-1"></i>
+													View
+												</a>
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% else %}
+						<p class="text-muted mb-0">No language editions available for this publication.</p>
+						<div class="text-center mt-3">
+							<a href="{{ path('app_publication_add_language', {'id': publication.id}) }}" class="btn btn-primary">
+								<i class="fas fa-plus me-1"></i>
+								Add First Language Edition
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+
+	</div>
+{% endblock %}
