@@ -27,17 +27,19 @@ class PublicationController extends AbstractController
         $search = $request->query->get('search');
         $themeId = $request->query->get('theme');
         $categoryId = $request->query->get('category');
+        $titleSearch = $request->query->get('title');
 
         $publications = $publicationRepository->findAll();
 
         // Apply filters if they are set
-        if (!empty($search) || !empty($themeId) || !empty($categoryId)) {
+        if (!empty($search) || !empty($themeId) || !empty($categoryId) || !empty($titleSearch)) {
             $filteredPublications = [];
 
             foreach ($publications as $publication) {
                 $matchesSearch = true;
                 $matchesTheme = true;
                 $matchesCategory = true;
+                $matchesTitle = true;
 
                 // Filter by search term
                 if (!empty($search)) {
@@ -47,6 +49,20 @@ class PublicationController extends AbstractController
 
                     if (strpos($themeTitle, $searchTerm) === false && strpos($authorName, $searchTerm) === false) {
                         $matchesSearch = false;
+                    }
+                }
+
+                // Filter by title
+                if (!empty($titleSearch)) {
+                    $titleSearchLower = strtolower($titleSearch);
+                    $matchesTitle = false;
+
+                    // Check each language edition's title
+                    foreach ($publication->getPublicationHasLanguages() as $pubLang) {
+                        if (strpos(strtolower($pubLang->getTitle()), $titleSearchLower) !== false) {
+                            $matchesTitle = true;
+                            break;
+                        }
                     }
                 }
 
@@ -61,7 +77,7 @@ class PublicationController extends AbstractController
                 }
 
                 // Add to filtered results if it matches all criteria
-                if ($matchesSearch && $matchesTheme && $matchesCategory) {
+                if ($matchesSearch && $matchesTheme && $matchesCategory && $matchesTitle) {
                     $filteredPublications[] = $publication;
                 }
             }
