@@ -32,7 +32,11 @@
 								<label for="theme" class="form-label">Theme</label>
 								<select class="form-select" id="theme" name="theme">
 									<option value="">All Themes</option>
-									{# TODO: Add theme options dynamically #}
+									{% for theme in themes %}
+										<option value="{{ theme.id }}" {% if app.request.query.get('theme') == theme.id %}selected{% endif %}>
+											{{ theme.title }}
+										</option>
+									{% endfor %}
 								</select>
 							</div>
 
@@ -40,7 +44,11 @@
 								<label for="category" class="form-label">Category</label>
 								<select class="form-select" id="category" name="category">
 									<option value="">All Categories</option>
-									{# TODO: Add category options dynamically #}
+									{% for category in categories %}
+										<option value="{{ category.id }}" {% if app.request.query.get('category') == category.id %}selected{% endif %}>
+											{{ category.name }}
+										</option>
+									{% endfor %}
 								</select>
 							</div>
 
@@ -79,13 +87,13 @@
 							<div class="col-6 p-3">
 								<h6 class="text-muted">Categories</h6>
 								<p class="h3 mb-0">
-									{% set categories = [] %}
+									{% set uniqueCategories = [] %}
 									{% for pub in publications %}
-										{% if pub.category and pub.category.id not in categories %}
-											{% set categories = categories|merge([pub.category.id]) %}
+										{% if pub.category and pub.category.id not in uniqueCategories %}
+											{% set uniqueCategories = uniqueCategories|merge([pub.category.id]) %}
 										{% endif %}
 									{% endfor %}
-									{{ categories|length }}
+									{{ uniqueCategories|length }}
 								</p>
 							</div>
 						</div>

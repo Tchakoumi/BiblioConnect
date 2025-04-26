@@ -7,6 +7,8 @@ use App\Entity\PublicationHasLanguage;
 use App\Form\PublicationType;
 use App\Form\PublicationHasLanguageType;
 use App\Repository\PublicationRepository;
+use App\Repository\ThemeRepository;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,10 +21,61 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class PublicationController extends AbstractController
 {
     #[Route('/', name: 'app_publication_index', methods: ['GET'])]
-    public function index(PublicationRepository $publicationRepository): Response
+    public function index(Request $request, PublicationRepository $publicationRepository,
+                         ThemeRepository $themeRepository, CategoryRepository $categoryRepository): Response
     {
+        $search = $request->query->get('search');
+        $themeId = $request->query->get('theme');
+        $categoryId = $request->query->get('category');
+
+        $publications = $publicationRepository->findAll();
+
+        // Apply filters if they are set
+        if (!empty($search) || !empty($themeId) || !empty($categoryId)) {
+            $filteredPublications = [];
+
+            foreach ($publications as $publication) {
+                $matchesSearch = true;
+                $matchesTheme = true;
+                $matchesCategory = true;
+
+                // Filter by search term
+                if (!empty($search)) {
+                    $themeTitle = $publication->getTheme() ? strtolower($publication->getTheme()->getTitle()) : '';
+                    $authorName = $publication->getAuthor() ? strtolower($publication->getAuthor()->getFullname()) : '';
+                    $searchTerm = strtolower($search);
+
+                    if (strpos($themeTitle, $searchTerm) === false && strpos($authorName, $searchTerm) === false) {
+                        $matchesSearch = false;
+                    }
+                }
+
+                // Filter by theme
+                if (!empty($themeId) && ($publication->getTheme() === null || (string)$publication->getTheme()->getId() !== (string)$themeId)) {
+                    $matchesTheme = false;
+                }
+
+                // Filter by category
+                if (!empty($categoryId) && ($publication->getCategory() === null || (string)$publication->getCategory()->getId() !== (string)$categoryId)) {
+                    $matchesCategory = false;
+                }
+
+                // Add to filtered results if it matches all criteria
+                if ($matchesSearch && $matchesTheme && $matchesCategory) {
+                    $filteredPublications[] = $publication;
+                }
+            }
+
+            $publications = $filteredPublications;
+        }
+
+        $themes = $themeRepository->findAll();
+        $categories = $categoryRepository->findAll();
+
         return $this->render('publication/index.html.twig', [
-            'publications' => $publicationRepository->findAll(),
+            'publications' => $publications,
+            'themes' => $themes,
+            'categories' => $categories,
         ]);
     }
 
