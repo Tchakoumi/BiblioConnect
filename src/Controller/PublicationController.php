@@ -169,6 +169,12 @@ class PublicationController extends AbstractController
         $form = $this->createForm(PublicationType::class, $publication);
         $form->handleRequest($request);
 
+        // Create delete form
+        $form_delete = $this->createFormBuilder()
+            ->setAction($this->generateUrl('app_publication_delete', ['id' => $publication->getId()]))
+            ->setMethod('DELETE')
+            ->getForm();
+
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
@@ -179,10 +185,11 @@ class PublicationController extends AbstractController
         return $this->render('publication/edit.html.twig', [
             'publication' => $publication,
             'form' => $form->createView(),
+            'form_delete' => $form_delete->createView(),
         ]);
     }
 
-    #[Route('/{id}', name: 'app_publication_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_publication_delete', methods: ['POST', 'DELETE'])]
     #[IsGranted('ROLE_LIBRARIAN')]
     public function delete(Request $request, Publication $publication, EntityManagerInterface $entityManager): Response
     {
