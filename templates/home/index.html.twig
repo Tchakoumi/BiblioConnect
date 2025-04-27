@@ -10,16 +10,18 @@
         <hr class="my-4">
         <p>You are logged in as: <strong>{{ app.user.firstName }} {{ app.user.lastName }}</strong> ({{ app.user.email }})</p>
 
+        {% if is_granted('ROLE_ADMIN') %}
         <div class="mt-4">
             <a href="{{ path('app_user_index') }}" class="btn btn-primary btn-lg">
                 <i class="bi bi-people me-2"></i> Manage Users
             </a>
         </div>
+        {% endif %}
     </div>
 </div>
 
 <div class="row">
-    <div class="col-md-4 mb-4">
+    <div class="col-md-6 mb-4">
         <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title"><i class="bi bi-book me-2"></i>Publications</h5>
@@ -29,22 +31,12 @@
         </div>
     </div>
 
-    <div class="col-md-4 mb-4">
+    <div class="col-md-6 mb-4">
         <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title"><i class="bi bi-bookmark me-2"></i>Reservations</h5>
                 <p class="card-text">View and manage all current publication reservations.</p>
                 <a href="{% if is_granted('ROLE_LIBRARIAN') %}{{ path('app_reservation_index') }}{% else %}{{ path('app_profile_index') }}{% endif %}" class="btn btn-outline-primary">View Reservations</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-gear me-2"></i>Settings</h5>
-                <p class="card-text">Configure system settings and preferences.</p>
-                <a href="#" class="btn btn-outline-primary">System Settings</a>
             </div>
         </div>
     </div>
