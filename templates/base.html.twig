@@ -57,10 +57,11 @@
 
 								<!-- Reservations - visible to all users -->
 								<li class="nav-item">
-									<a class="nav-link" href="{% if is_granted('ROLE_ADMIN') %}{{ path('app_reservation_index') }}{% else %}{{ path('app_profile_index') }}{% endif %}">
+									<a class="nav-link" href="{% if is_granted('ROLE_LIBRARIAN') %}{{ path('app_reservation_index') }}{% else %}{{ path('app_profile_index') }}{% endif %}">
 										<i class="bi bi-bookmark me-1"></i>
-										{% if is_granted('ROLE_ADMIN') %}All Reservations{% else %}My Reservations{% endif %}
-										{% if not is_granted('ROLE_ADMIN') and cartCount|default(0) > 0 %}
+										{% if is_granted('ROLE_LIBRARIAN') %}All Reservations{% else %}My Reservations
+										{% endif %}
+										{% if not is_granted('ROLE_LIBRARIAN') and cartCount|default(0) > 0 %}
 											<span class="badge bg-danger">{{ cartCount }}</span>
 										{% endif %}
 									</a>

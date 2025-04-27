@@ -33,7 +33,7 @@ class ReservationController extends AbstractController
     }
 
     #[Route('/', name: 'app_reservation_index', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN')]
+    #[IsGranted('ROLE_LIBRARIAN')]
     public function index(Request $request, ReservationRepository $reservationRepository, EntityManagerInterface $entityManager): Response
     {
         // Get search query if any
@@ -274,8 +274,8 @@ class ReservationController extends AbstractController
 
             $this->addFlash('success', 'Your reservation has been confirmed successfully!');
 
-            // Redirect to profile for regular users, admin panel for admins
-            if ($this->isGranted('ROLE_ADMIN')) {
+            // Redirect to reservation management for librarians and admins, profile for regular users
+            if ($this->isGranted('ROLE_LIBRARIAN')) {
                 return $this->redirectToRoute('app_reservation_index');
             } else {
                 return $this->redirectToRoute('app_profile_index');
