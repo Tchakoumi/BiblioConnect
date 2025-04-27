@@ -66,6 +66,7 @@ class RatingController extends AbstractController
 
             $rating->setComment($comment);
             $rating->setRating($ratingValue);
+            $rating->setActive(true); // Set as active by default
 
             if ($newRating) {
                 $entityManager->persist($rating);
@@ -87,11 +88,40 @@ class RatingController extends AbstractController
     #[Route('/{id}', name: 'app_rating_show', methods: ['GET'])]
     public function show(PublicationHasLanguage $publicationHasLanguage, RatingRepository $ratingRepository): Response
     {
-        $ratings = $ratingRepository->findBy(['publicationHasLanguage' => $publicationHasLanguage], ['id' => 'DESC']);
+        // For admins, show all ratings (active and inactive)
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $ratings = $ratingRepository->findBy(['publicationHasLanguage' => $publicationHasLanguage], ['id' => 'DESC']);
+        } else {
+            // For regular users, only show active ratings
+            $ratings = $ratingRepository->findBy(
+                ['publicationHasLanguage' => $publicationHasLanguage, 'active' => true],
+                ['id' => 'DESC']
+            );
+        }
 
         return $this->render('rating/show.html.twig', [
             'publication' => $publicationHasLanguage,
             'ratings' => $ratings
         ]);
+    }
+
+    #[Route('/{id}/toggle-status', name: 'app_rating_toggle_status', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function toggleStatus(Rating $rating, EntityManagerInterface $entityManager, Request $request): Response
+    {
+        // Toggle the active status
+        $rating->setActive(!$rating->isActive());
+        $entityManager->flush();
+
+        $this->addFlash(
+            'success',
+            'Review ' . ($rating->isActive() ? 'approved' : 'hidden') . ' successfully'
+        );
+
+        // Get the referer to redirect back to the page the user was on
+        $referer = $request->headers->get('referer');
+        return $this->redirect($referer ?: $this->generateUrl('app_rating_show', [
+            'id' => $rating->getPublicationHasLanguage()->getId()
+        ]));
     }
 }

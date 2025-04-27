@@ -157,9 +157,25 @@ class PublicationController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function show(Publication $publication, EntityManagerInterface $entityManager): Response
     {
-        // For each language edition, eager load all ratings
+        // For each language edition, eager load only active ratings unless user is admin
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
         foreach ($publication->getPublicationHasLanguages() as $edition) {
-            $edition->getRatings()->initialize();
+            $ratings = $isAdmin
+                ? $edition->getRatings()
+                : $entityManager->getRepository('App\Entity\Rating')->findBy([
+                    'publicationHasLanguage' => $edition->getId(),
+                    'active' => true
+                ]);
+
+            // Set the ratings collection directly if filtering needed
+            if (!$isAdmin) {
+                $ratingCollection = new \Doctrine\Common\Collections\ArrayCollection($ratings);
+                $reflectionProperty = new \ReflectionProperty(get_class($edition), 'ratings');
+                $reflectionProperty->setAccessible(true);
+                $reflectionProperty->setValue($edition, $ratingCollection);
+            } else {
+                $edition->getRatings()->initialize();
+            }
         }
 
         return $this->render('publication/show.html.twig', [

@@ -30,18 +30,25 @@
 			<div class="col-md-8">
 				<div class="card shadow-sm">
 					<div class="card-header bg-light d-flex justify-content-between align-items-center">
-						<h5 class="mb-0">User Reviews ({{ ratings|length }})</h5>
+						<h5 class="mb-0">User Reviews ({{ is_granted('ROLE_ADMIN') ? ratings|length : ratings|filter(r => r.active)|length }})</h5>
 					</div>
 					<div class="card-body">
 						{% if ratings|length > 0 %}
 							{% for rating in ratings %}
-								<div class="review mb-4 {% if not loop.last %}border-bottom pb-4{% endif %}">
+								<div class="review mb-4 {% if not loop.last %}border-bottom pb-4{% endif %} {% if is_granted('ROLE_ADMIN') and not rating.active %}bg-light-subtle opacity-75{% endif %}">
 									<div class="d-flex justify-content-between align-items-start mb-3">
 										<div>
 											<div class="fw-bold">
 												{{ rating.user.firstName }}
 												{{ rating.user.lastName }}
 												<span class="badge bg-warning text-dark ms-2">{{ rating.rating }}/5</span>
+												{% if is_granted('ROLE_ADMIN') %}
+													{% if rating.active %}
+														<span class="badge bg-success ms-1">Active</span>
+													{% else %}
+														<span class="badge bg-danger ms-1">Hidden</span>
+													{% endif %}
+												{% endif %}
 											</div>
 											<div class="text-warning mb-1">
 												{% for i in 1..5 %}
@@ -53,6 +60,17 @@
 												{% endfor %}
 											</div>
 										</div>
+										{% if is_granted('ROLE_ADMIN') %}
+											<form method="post" action="{{ path('app_rating_toggle_status', {'id': rating.id}) }}">
+												<button type="submit" class="btn btn-sm {% if rating.active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+													{% if rating.active %}
+														<i class="fas fa-eye-slash me-1"></i> Hide
+													{% else %}
+														<i class="fas fa-eye me-1"></i> Show
+													{% endif %}
+												</button>
+											</form>
+										{% endif %}
 									</div>
 									<div class="bg-light p-3 rounded">
 										<p class="mb-0">{{ rating.comment|nl2br }}</p>
@@ -80,21 +98,28 @@
 						<h5 class="mb-0">Rating Summary</h5>
 					</div>
 					<div class="card-body">
-						{% if ratings|length > 0 %}
+						{% set activeRatings = is_granted('ROLE_ADMIN') ? ratings : ratings|filter(r => r.active) %}
+						{% if activeRatings|length > 0 %}
 							{% set totalRating = 0 %}
-							{% for rating in ratings %}
+							{% for rating in activeRatings %}
 								{% set totalRating = totalRating + rating.rating %}
 							{% endfor %}
-							{% set averageRating = (totalRating / ratings|length)|round(1) %}
+							{% set averageRating = (totalRating / activeRatings|length)|round(1) %}
 
 							<div class="text-center mb-3">
 								<div class="display-4 fw-bold">{{ averageRating }}</div>
-								<div class="text-muted">Based on
-									{{ ratings|length }}
-									review
-									{% if ratings|length != 1 %}s
-									{% endif %}
+								<div class="text-warning fs-3">
+									{% for i in 1..5 %}
+										{% if i <= averageRating %}
+											<i class="fas fa-star"></i>
+										{% elseif (i - 0.5) <= averageRating %}
+											<i class="fas fa-star-half-alt"></i>
+										{% else %}
+											<i class="far fa-star"></i>
+										{% endif %}
+									{% endfor %}
 								</div>
+								<div class="text-muted">Based on {{ activeRatings|length }} review{% if activeRatings|length != 1 %}s{% endif %}</div>
 							</div>
 
 							{# Rating distribution - fixed implementation #}
@@ -104,7 +129,7 @@
 							{% set rating_4 = 0 %}
 							{% set rating_5 = 0 %}
 
-							{% for rating in ratings %}
+							{% for rating in activeRatings %}
 								{% if rating.rating == 1 %}
 									{% set rating_1 = rating_1 + 1 %}
 								{% elseif rating.rating == 2 %}
@@ -119,7 +144,7 @@
 							{% endfor %}
 
 							{# 5 stars #}
-							{% set percent_5 = ratings|length > 0 ? (rating_5 / ratings|length * 100) : 0 %}
+							{% set percent_5 = activeRatings|length > 0 ? (rating_5 / activeRatings|length * 100) : 0 %}
 							<div class="d-flex align-items-center mb-2">
 								<div class="me-2 text-warning" style="width: 60px;">
 									5 Stars
@@ -133,7 +158,7 @@
 							</div>
 
 							{# 4 stars #}
-							{% set percent_4 = ratings|length > 0 ? (rating_4 / ratings|length * 100) : 0 %}
+							{% set percent_4 = activeRatings|length > 0 ? (rating_4 / activeRatings|length * 100) : 0 %}
 							<div class="d-flex align-items-center mb-2">
 								<div class="me-2 text-warning" style="width: 60px;">
 									4 Stars
@@ -147,7 +172,7 @@
 							</div>
 
 							{# 3 stars #}
-							{% set percent_3 = ratings|length > 0 ? (rating_3 / ratings|length * 100) : 0 %}
+							{% set percent_3 = activeRatings|length > 0 ? (rating_3 / activeRatings|length * 100) : 0 %}
 							<div class="d-flex align-items-center mb-2">
 								<div class="me-2 text-warning" style="width: 60px;">
 									3 Stars
@@ -161,7 +186,7 @@
 							</div>
 
 							{# 2 stars #}
-							{% set percent_2 = ratings|length > 0 ? (rating_2 / ratings|length * 100) : 0 %}
+							{% set percent_2 = activeRatings|length > 0 ? (rating_2 / activeRatings|length * 100) : 0 %}
 							<div class="d-flex align-items-center mb-2">
 								<div class="me-2 text-warning" style="width: 60px;">
 									2 Stars
@@ -175,7 +200,7 @@
 							</div>
 
 							{# 1 star #}
-							{% set percent_1 = ratings|length > 0 ? (rating_1 / ratings|length * 100) : 0 %}
+							{% set percent_1 = activeRatings|length > 0 ? (rating_1 / activeRatings|length * 100) : 0 %}
 							<div class="d-flex align-items-center mb-2">
 								<div class="me-2 text-warning" style="width: 60px;">
 									1 Star

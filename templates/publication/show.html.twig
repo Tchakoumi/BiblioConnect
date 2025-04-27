@@ -105,31 +105,37 @@
 											<td>
 												{% if edition.ratings.count > 0 %}
 													{% set totalRating = 0 %}
-													{% for rating in edition.ratings %}
+													{% set activeRatings = is_granted('ROLE_ADMIN') ? edition.ratings : edition.ratings|filter(r => r.active) %}
+													{% for rating in activeRatings %}
 														{% set totalRating = totalRating + rating.rating %}
 													{% endfor %}
-													{% set averageRating = (totalRating / edition.ratings.count)|round(1) %}
+													{% set ratingCount = activeRatings|length %}
+													{% if ratingCount > 0 %}
+														{% set averageRating = (totalRating / ratingCount)|round(1) %}
 
-													<div class="d-flex align-items-center">
-														<div class="me-2">
-															<span class="badge bg-warning text-dark fw-bold">{{ averageRating }}</span>
+														<div class="d-flex align-items-center">
+															<div class="me-2">
+																<span class="badge bg-warning text-dark fw-bold">{{ averageRating }}</span>
+															</div>
+															<div class="text-warning me-2">
+																{% for i in 1..5 %}
+																	{% if i <= averageRating %}
+																		<i class="fas fa-star"></i>
+																	{% elseif (i - 0.5) <= averageRating %}
+																		<i class="fas fa-star-half-alt"></i>
+																	{% else %}
+																		<i class="far fa-star"></i>
+																	{% endif %}
+																{% endfor %}
+															</div>
+															<small>({{ ratingCount }} review{% if ratingCount != 1 %}s{% endif %})</small>
+															<a href="{{ path('app_rating_show', {'id': edition.id}) }}" class="btn btn-sm btn-link">
+																View
+															</a>
 														</div>
-														<div class="text-warning me-2">
-															{% for i in 1..5 %}
-																{% if i <= averageRating %}
-																	<i class="fas fa-star"></i>
-																{% elseif (i - 0.5) <= averageRating %}
-																	<i class="fas fa-star-half-alt"></i>
-																{% else %}
-																	<i class="far fa-star"></i>
-																{% endif %}
-															{% endfor %}
-														</div>
-														<small>({{ edition.ratings.count }} review{% if edition.ratings.count != 1 %}s{% endif %})</small>
-														<a href="{{ path('app_rating_show', {'id': edition.id}) }}" class="btn btn-sm btn-link">
-															View
-														</a>
-													</div>
+													{% else %}
+														<span class="text-muted">No ratings</span>
+													{% endif %}
 												{% else %}
 													<span class="text-muted">No ratings</span>
 												{% endif %}
