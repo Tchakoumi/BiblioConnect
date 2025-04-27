@@ -86,6 +86,7 @@
 											<th>Sales Price</th>
 											<th>Acquisition Price</th>
 										{% endif %}
+										<th>Rating</th>
 										<th>Action</th>
 									</tr>
 								</thead>
@@ -102,18 +103,50 @@
 												<td>{{ edition.acquisitionCost }}</td>
 											{% endif %}
 											<td>
-													<div class="d-flex gap-1">
-												{% if is_granted('ROLE_LIBRARIAN') %}
-														<a href="{{ path('app_publication_language_edit', {'id': publication.id, 'langId': edition.id}) }}" class="btn btn-sm btn-outline-primary">
-															Edit
+												{% if edition.ratings.count > 0 %}
+													{% set totalRating = 0 %}
+													{% for rating in edition.ratings %}
+														{% set totalRating = totalRating + rating.rating %}
+													{% endfor %}
+													{% set averageRating = (totalRating / edition.ratings.count)|round(1) %}
+
+													<div class="d-flex align-items-center">
+														<div class="me-2">
+															<span class="badge bg-warning text-dark fw-bold">{{ averageRating }}</span>
+														</div>
+														<div class="text-warning me-2">
+															{% for i in 1..5 %}
+																{% if i <= averageRating %}
+																	<i class="fas fa-star"></i>
+																{% elseif (i - 0.5) <= averageRating %}
+																	<i class="fas fa-star-half-alt"></i>
+																{% else %}
+																	<i class="far fa-star"></i>
+																{% endif %}
+															{% endfor %}
+														</div>
+														<small>({{ edition.ratings.count }} review{% if edition.ratings.count != 1 %}s{% endif %})</small>
+														<a href="{{ path('app_rating_show', {'id': edition.id}) }}" class="btn btn-sm btn-link">
+															View
 														</a>
-														<form method="post" action="{{ path('app_publication_language_delete', {'id': publication.id, 'langId': edition.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this language edition?');">
-															<input type="hidden" name="_token" value="{{ csrf_token('delete-language' ~ edition.id) }}">
-															<input type="hidden" name="_method" value="DELETE">
-															<button class="btn btn-sm btn-outline-danger">
-																Delete
-															</button>
-														</form>
+													</div>
+												{% else %}
+													<span class="text-muted">No ratings</span>
+												{% endif %}
+											</td>
+											<td>
+												<div class="d-flex gap-1">
+												{% if is_granted('ROLE_LIBRARIAN') %}
+													<a href="{{ path('app_publication_language_edit', {'id': publication.id, 'langId': edition.id}) }}" class="btn btn-sm btn-outline-primary">
+														Edit
+													</a>
+													<form method="post" action="{{ path('app_publication_language_delete', {'id': publication.id, 'langId': edition.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this language edition?');">
+														<input type="hidden" name="_token" value="{{ csrf_token('delete-language' ~ edition.id) }}">
+														<input type="hidden" name="_method" value="DELETE">
+														<button class="btn btn-sm btn-outline-danger">
+															Delete
+														</button>
+													</form>
 												{% endif %}
 												{% if edition.quantity > 0 %}
 													<form method="post" action="{{ path('app_reservation_add_to_cart', {'id': edition.id}) }}" class="d-inline">
@@ -125,7 +158,7 @@
 												{% else %}
 													<span class="badge bg-danger">Out of stock</span>
 												{% endif %}
-													</div>
+												</div>
 											</td>
 										</tr>
 									{% endfor %}

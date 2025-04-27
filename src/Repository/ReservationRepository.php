@@ -40,4 +40,22 @@ class ReservationRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    /**
+     * Check if a user has reserved a specific publication language edition
+     */
+    public function hasUserReservedPublication(int $userId, int $publicationHasLanguageId): bool
+    {
+        $result = $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->join('r.reservationPublications', 'rp')
+            ->where('r.user = :userId')
+            ->andWhere('rp.publication_has_language = :publicationId')
+            ->setParameter('userId', $userId)
+            ->setParameter('publicationId', $publicationHasLanguageId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int)$result > 0;
+    }
 }

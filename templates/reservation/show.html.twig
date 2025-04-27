@@ -40,6 +40,9 @@
                                         {% if is_admin_view|default(false) %}
                                             <th>Price</th>
                                         {% endif %}
+                                        {% if not is_admin_view|default(false) %}
+                                            <th>Actions</th>
+                                        {% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -56,6 +59,18 @@
                                             <td>{{ item.returnDate|date('Y-m-d') }}</td>
                                             {% if is_admin_view|default(false) %}
                                                 <td>{{ item.publicationHasLanguage.salesPrice }} €</td>
+                                            {% endif %}
+                                            {% if not is_admin_view|default(false) %}
+                                                <td>
+                                                    <div class="btn-group btn-group-sm" role="group">
+                                                        <a href="{{ path('app_rating_new', {'id': item.publicationHasLanguage.id}) }}" class="btn btn-outline-primary">
+                                                            <i class="fas fa-comment me-1"></i> Rate & Comment
+                                                        </a>
+                                                        <a href="{{ path('app_rating_show', {'id': item.publicationHasLanguage.id}) }}" class="btn btn-outline-secondary">
+                                                            <i class="fas fa-star me-1"></i> View Reviews
+                                                        </a>
+                                                    </div>
+                                                </td>
                                             {% endif %}
                                         </tr>
                                     {% endfor %}

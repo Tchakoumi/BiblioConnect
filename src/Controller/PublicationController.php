@@ -155,8 +155,13 @@ class PublicationController extends AbstractController
 
     #[Route('/{id}', name: 'app_publication_show', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function show(Publication $publication): Response
+    public function show(Publication $publication, EntityManagerInterface $entityManager): Response
     {
+        // For each language edition, eager load all ratings
+        foreach ($publication->getPublicationHasLanguages() as $edition) {
+            $edition->getRatings()->initialize();
+        }
+
         return $this->render('publication/show.html.twig', [
             'publication' => $publication,
         ]);
