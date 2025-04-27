@@ -102,8 +102,8 @@
 												<td>{{ edition.acquisitionCost }}</td>
 											{% endif %}
 											<td>
-												{% if is_granted('ROLE_LIBRARIAN') %}
 													<div class="d-flex gap-1">
+												{% if is_granted('ROLE_LIBRARIAN') %}
 														<a href="{{ path('app_publication_language_edit', {'id': publication.id, 'langId': edition.id}) }}" class="btn btn-sm btn-outline-primary">
 															Edit
 														</a>
@@ -114,9 +114,18 @@
 																Delete
 															</button>
 														</form>
-													</div>
-
 												{% endif %}
+												{% if edition.quantity > 0 %}
+													<form method="post" action="{{ path('app_reservation_add_to_cart', {'id': edition.id}) }}" class="d-inline">
+														<button class="btn btn-sm btn-success">
+															<i class="fas fa-bookmark me-1"></i>
+															Reserve
+														</button>
+													</form>
+												{% else %}
+													<span class="badge bg-danger">Out of stock</span>
+												{% endif %}
+													</div>
 											</td>
 										</tr>
 									{% endfor %}

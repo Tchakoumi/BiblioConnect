@@ -34,7 +34,7 @@
             <div class="card-body">
                 <h5 class="card-title"><i class="bi bi-bookmark me-2"></i>Reservations</h5>
                 <p class="card-text">View and manage all current publication reservations.</p>
-                <a href="#" class="btn btn-outline-primary">View Reservations</a>
+                <a href="{% if is_granted('ROLE_ADMIN') %}{{ path('app_reservation_index') }}{% else %}{{ path('app_profile_index') }}{% endif %}" class="btn btn-outline-primary">View Reservations</a>
             </div>
         </div>
     </div>
