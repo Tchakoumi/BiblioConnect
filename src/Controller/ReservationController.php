@@ -19,6 +19,18 @@ use \DateTime;
 #[Route('/reservation')]
 class ReservationController extends AbstractController
 {
+    /**
+     * Calculate the total cost of a reservation
+     */
+    private function calculateReservationCost(Reservation $reservation): int
+    {
+        $totalCost = 0;
+        foreach ($reservation->getReservationPublications() as $item) {
+            $totalCost += $item->getPublicationHasLanguage()->getSalesPrice();
+        }
+        return $totalCost;
+    }
+
     #[Route('/', name: 'app_reservation_index', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN')]
     public function index(ReservationRepository $reservationRepository): Response
@@ -26,9 +38,16 @@ class ReservationController extends AbstractController
         // Admin sees all reservations
         $reservations = $reservationRepository->findBy([], ['created_at' => 'DESC']);
 
+        // Calculate costs for all reservations
+        $reservationCosts = [];
+        foreach ($reservations as $reservation) {
+            $reservationCosts[$reservation->getId()] = $this->calculateReservationCost($reservation);
+        }
+
         return $this->render('reservation/index.html.twig', [
             'reservations' => $reservations,
-            'is_admin_view' => true
+            'is_admin_view' => true,
+            'reservation_costs' => $reservationCosts
         ]);
     }
 
@@ -205,10 +224,12 @@ class ReservationController extends AbstractController
         }
 
         $isAdminView = $this->isGranted('ROLE_ADMIN') && $reservation->getUser() !== $this->getUser();
+        $totalCost = $this->calculateReservationCost($reservation);
 
         return $this->render('reservation/show.html.twig', [
             'reservation' => $reservation,
-            'is_admin_view' => $isAdminView
+            'is_admin_view' => $isAdminView,
+            'total_cost' => $totalCost
         ]);
     }
 }

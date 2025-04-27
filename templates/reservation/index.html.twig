@@ -49,6 +49,7 @@
 									<th>Date</th>
 									{% if is_admin_view|default(false) %}
 										<th>User</th>
+										<th>Total Cost</th>
 									{% endif %}
 									<th>Items</th>
 									<th>Actions</th>
@@ -62,6 +63,7 @@
 										{% if is_admin_view|default(false) %}
 											<td>{{ reservation.user.firstName }}
 												{{ reservation.user.lastName }}</td>
+											<td>{{ reservation_costs[reservation.id] }} €</td>
 										{% endif %}
 										<td>{{ reservation.reservationPublications|length }}
 											publication{{ reservation.reservationPublications|length > 1 ? 's' : '' }}</td>

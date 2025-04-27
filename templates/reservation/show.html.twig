@@ -37,6 +37,9 @@
                                         <th>Title</th>
                                         <th>Language</th>
                                         <th>Return By</th>
+                                        {% if is_admin_view|default(false) %}
+                                            <th>Price</th>
+                                        {% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -51,6 +54,9 @@
                                                 <span class="badge bg-info">{{ item.publicationHasLanguage.language.name }}</span>
                                             </td>
                                             <td>{{ item.returnDate|date('Y-m-d') }}</td>
+                                            {% if is_admin_view|default(false) %}
+                                                <td>{{ item.publicationHasLanguage.salesPrice }} €</td>
+                                            {% endif %}
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -92,6 +98,12 @@
                             <th>Items</th>
                             <td>{{ reservation.reservationPublications|length }}</td>
                         </tr>
+                        {% if is_admin_view|default(false) %}
+                        <tr>
+                            <th>Total Cost</th>
+                            <td>{{ total_cost }} €</td>
+                        </tr>
+                        {% endif %}
                         <tr>
                             <th>Status</th>
                             <td><span class="badge bg-success">Active</span></td>
