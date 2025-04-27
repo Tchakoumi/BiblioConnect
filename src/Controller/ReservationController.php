@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use \DateTime;
+use App\Entity\User;
 
 #[Route('/reservation')]
 class ReservationController extends AbstractController
@@ -33,12 +34,78 @@ class ReservationController extends AbstractController
 
     #[Route('/', name: 'app_reservation_index', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN')]
-    public function index(ReservationRepository $reservationRepository): Response
+    public function index(Request $request, ReservationRepository $reservationRepository, EntityManagerInterface $entityManager): Response
     {
-        // Admin sees all reservations
-        $reservations = $reservationRepository->findBy([], ['created_at' => 'DESC']);
+        // Get search query if any
+        $searchQuery = $request->query->get('search');
+        $userId = $request->query->get('user');
 
-        // Calculate costs for all reservations
+        // Get all reservations (default) or filter by search/user
+        $reservations = [];
+        $users = [];
+        $userReservations = [];
+
+        if ($userId) {
+            // If specific user is selected, get only their reservations
+            $user = $entityManager->getRepository(User::class)->find($userId);
+            if ($user) {
+                $reservations = $reservationRepository->findBy(['user' => $user], ['created_at' => 'DESC']);
+                $users = [$user];
+            }
+        } else {
+            // Get all users for the dropdown
+            $userRepo = $entityManager->getRepository(User::class);
+
+            if ($searchQuery) {
+                // Search users by name or email
+                $users = $userRepo->createQueryBuilder('u')
+                    ->where('u.email LIKE :search')
+                    ->orWhere('u.first_name LIKE :search')
+                    ->orWhere('u.last_name LIKE :search')
+                    ->setParameter('search', '%' . $searchQuery . '%')
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                // Get all users
+                $users = $userRepo->findAll();
+            }
+
+            // Get all reservations
+            $reservations = $reservationRepository->findBy([], ['created_at' => 'DESC']);
+        }
+
+        // Group reservations by user
+        foreach ($users as $user) {
+            $userReservations[$user->getId()] = [
+                'user' => $user,
+                'reservations' => [],
+                'totalCount' => 0,
+                'totalCost' => 0
+            ];
+        }
+
+        // Calculate costs and group by user
+        foreach ($reservations as $reservation) {
+            $userId = $reservation->getUser()->getId();
+
+            // Initialize user data if not already set (for when loading all reservations)
+            if (!isset($userReservations[$userId])) {
+                $userReservations[$userId] = [
+                    'user' => $reservation->getUser(),
+                    'reservations' => [],
+                    'totalCount' => 0,
+                    'totalCost' => 0
+                ];
+            }
+
+            $cost = $this->calculateReservationCost($reservation);
+
+            $userReservations[$userId]['reservations'][] = $reservation;
+            $userReservations[$userId]['totalCount']++;
+            $userReservations[$userId]['totalCost'] += $cost;
+        }
+
+        // Calculate individual reservation costs for the template
         $reservationCosts = [];
         foreach ($reservations as $reservation) {
             $reservationCosts[$reservation->getId()] = $this->calculateReservationCost($reservation);
@@ -47,7 +114,10 @@ class ReservationController extends AbstractController
         return $this->render('reservation/index.html.twig', [
             'reservations' => $reservations,
             'is_admin_view' => true,
-            'reservation_costs' => $reservationCosts
+            'reservation_costs' => $reservationCosts,
+            'user_reservations' => $userReservations,
+            'selected_user_id' => $userId,
+            'search_query' => $searchQuery
         ]);
     }
 
