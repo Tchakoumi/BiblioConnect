@@ -28,6 +28,9 @@ class Rating
     #[ORM\JoinColumn(nullable: false)]
     private ?PublicationHasLanguage $publicationHasLanguage = null;
 
+    #[ORM\Column(options: ["default" => true])]
+    private ?bool $active = true;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -77,6 +80,18 @@ class Rating
     public function setPublicationHasLanguage(?PublicationHasLanguage $publicationHasLanguage): static
     {
         $this->publicationHasLanguage = $publicationHasLanguage;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): static
+    {
+        $this->active = $active;
 
         return $this;
     }
